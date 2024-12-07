@@ -26,7 +26,22 @@ def open_profile_manager():
     click(Link('Profile Manager'))
 
 
+def add_users_to_system():
+    global first_name, last_name, employee_id, badge_num, department
+    # Loop through each row in the Excel file
+    for index, row in apex_users.iterrows():
+        first_name = row['First Name']
+        last_name = row['Last Name']
+        employee_id = row['Badge Number']
 
+        if pd.isna(row['Badge Number']):
+            continue
+        else:
+            badge_num = int(row['Badge Number'])
+
+        department = row['Department']
+
+        add_user(first_name, last_name, employee_id, badge_num, department)
     
 
 open_apex()
