@@ -23,7 +23,11 @@ def open_apex():
     open_profile_manager()
 
 def open_profile_manager():
+    highlight(Link('Profile Manager'))
     click(Link('Profile Manager'))
+    highlight(Link('Manage Users'))
+    click(Link('Manage Users'))
+    add_user()
 
 
 def add_users_to_system():
@@ -43,5 +47,12 @@ def add_users_to_system():
 
         add_user(first_name, last_name, employee_id, badge_num, department)
     
+
+def add_user():#first_name, last_name, employee_id, badge_number, department):
+    highlight(TextField(below=Link('Add a User')))
+    click(TextField(below=Link('Add a User')))
+    write('Test')
+    highlight(Button('Search'))
+    click(Button('Search'))
 
 open_apex()
