@@ -12,6 +12,7 @@ load_dotenv()
 
 #apex_users = os.getenv("EXCEL_FILE")
 apex_users = pd.read_excel("New_Apex_Users.xlsx")
+print(apex_users)
 
 def format_badge_number(badge_number):
     # Converts the badge number to a string
@@ -61,9 +62,11 @@ def process_users():
         employee_id = row['Badge Number']
 
         if pd.isna(row['Badge Number']):
+            print("test 1")
             continue
         else:
             badge_num = int(row['Badge Number'])
+            print("test 2")
 
         department = row['Department']
 
@@ -71,7 +74,7 @@ def process_users():
     
 
 def add_user(first_name, last_name, employee_id, badge_num, department):
-    print("Adding user to the system.")
+    print("At the add user function.")
     print("Waiting for 'Add a User' link to exist.")
     wait_until(Link('Add a User').exists)
     print("Found 'Add a User' link.")
@@ -79,6 +82,7 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
     print("Highlighted 'Add a User' field.")
     click(TextField(below=Link('Add a User')))
     print("Clicked 'Add a User' field.")
+    write("", into=TextField(below=Link('Add a User')))
     write(f'{badge_num}')
     print(f"Wrote badge number: {badge_num}")
     highlight(Button('Search'))
@@ -87,31 +91,39 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
     print("Clicked 'Search' button.")
 
     user_element = S("//*[@id='tr0']")
+    time.sleep(1)
 
     if user_element.exists():
         print("Info already exists")
         #print(f"{badge_num} already exists. Chanigng the existing info.")
         last_name_element = S("#tr0 > td:nth-child(1) > a:nth-child(1)")
+        highlight(last_name_element)
         click(last_name_element)
         print("Last name element clicked.")
 
         first_name_field = TextField(to_right_of=Text('First Name *:'))
+        highlight(first_name_field)
         click(first_name_field)
+        write("", into=first_name_field) # Clears the field
         write(first_name, into=first_name_field) # Clears the field
-        write(first_name) # Need to add logic to add the first name
 
         last_name_field = TextField(to_right_of=Text('Last Name *:'))
+        highlight(last_name_field)
         click(last_name_field)
+        write("", into=last_name_field) # Clears the field
         write(last_name, into=last_name_field)
-        write(last_name) # Need to add logic to add the last name
+
 
         emp_id_field = TextField(to_right_of=Text('Employee ID *:'))
+        highlight(emp_id_field)
+        write("", into=emp_id_field)
         write(employee_id, into=emp_id_field)
-        write(employee_id) # placeholder
 
         badge_number_field = TextField(to_right_of=Text('Badge #:'))
+        highlight(badge_number_field)
+        write("", into=badge_number_field)
         write(badge_num, into=badge_number_field)
-        write(badge_num) # placeholder
+    
 
         # TODO
         """Add Logic to edit the group membership"""
@@ -132,26 +144,26 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
         first_name_field = TextField(to_right_of=Text('First Name *:'))
         click(first_name_field)
         write("", into=first_name_field) # Clears the field
-        write("Working") # Need to add logic to add the first name
+        write(first_name) # Need to add logic to add the first name
 
         last_name_field = TextField(to_right_of=Text('Last Name *:'))
         click(last_name_field)
         write("", into=last_name_field)
-        write('Last Name') # Need to add logic to add the last name
+        write(last_name) # Need to add logic to add the last name
 
         emp_id_field = TextField(to_right_of=Text('Employee ID *:'))
         write("", into=emp_id_field)
-        write('Employee ID') # placeholder
+        write(employee_id) # placeholder
 
         badge_number_field = TextField(to_right_of=Text('Badge #:'))
         write("", into=badge_number_field)
-        write('Badge Number') # placeholder
+        write(badge_num) # placeholder
 
         dept = Link("User Group Membership")
         click(dept)
         # Implement function to edit the group assignment
         #TODO
-        
+        group_assignment(department)
 
 
 def edit_all_checkboxes():
@@ -173,9 +185,8 @@ def edit_all_checkboxes():
             print("Checkbox is already unchecked.")
 
 
-def group_assignment(group):
+def group_assignment(department):
     print("Assigning the group.")
-    time.sleep(1)
     if department == "Cycle Count":
         return group_selection(2)
     elif department == "General":
@@ -206,26 +217,28 @@ def edit_group_assignment(group):
 def edit_group_selection(group):
     try:
         wait_until(Text("User Group Membership").exists)
+        print("Edit window is open.")
         checkbox = f"input[id='editMembershipCheck{group}']"
         checkbox_element = S(checkbox).web_element
-        if checkbox_element.is_selected():
-            highlight(S(checkbox))
-            click(S(checkbox))
-        else:
-            print("Checkbox is already unchecked.")
+        highlight(S(checkbox))
+        click(S(checkbox))
+        click(Button("Save"))
+        click(Button("Save"))
     except Exception as e:
         print(e)
 
 def group_selection(group):
     try:
         wait_until(Text("User Group Membership").exists)
-        checkbox = f"input[id='editMembershipCheck{group}']"
+        checkbox = f"input[id='membershipCheck{group}']"
         checkbox_element = S(checkbox).web_element
-        if checkbox_element.is_selected():
-            print("Checkbox is already selected.")
-        else:
-            highlight(S(checkbox))
-            click(S(checkbox))
+        print("Checkbox is already selected.")
+        highlight(S(checkbox))
+        click(S(checkbox))
+        click(Button("Add"))
+        click(Button("Submit"))
+        wait_until(Button("Ok").exists)
+        click(Button("Ok"))
     except Exception as e:
         print(e)
             
