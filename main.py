@@ -122,7 +122,7 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
         badge_number_field = TextField(to_right_of=Text('Badge #:'))
         highlight(badge_number_field)
         write("", into=badge_number_field)
-        write(badge_num, into=badge_number_field)
+        write(format_badge_number(badge_num, into=badge_number_field))
     
 
         # TODO
@@ -157,7 +157,7 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
 
         badge_number_field = TextField(to_right_of=Text('Badge #:'))
         write("", into=badge_number_field)
-        write(badge_num) # placeholder
+        write(format_badge_number(badge_num)) # placeholder
 
         dept = Link("User Group Membership")
         click(dept)
