@@ -66,7 +66,7 @@ def add_users_to_system():
 def add_user():#first_name, last_name, employee_id, badge_number, department):
     highlight(TextField(below=Link('Add a User')))
     click(TextField(below=Link('Add a User')))
-    write('Test')
+    write('Barrack Obama')
     highlight(Button('Search'))
     click(Button('Search'))
 
@@ -96,6 +96,42 @@ def add_user():#first_name, last_name, employee_id, badge_number, department):
         badge_number_field = TextField(to_right_of=Text('Badge #:'))
         write("", into=badge_number_field)
         write('Badge Number') # placeholder
+
+        # TODO
+        """Add Logic to edit the group membership"""
+
+        dept = Link("User Group Membership")
+        click(dept)
+    else:
+        print("Badge number doesn't exist -- adding user.")
+        add_user_link = Link("Add a User")
+        click(add_user_link)
+
+        first_name_field = TextField(to_right_of=Text('First Name *:'))
+        click(first_name_field)
+        write("", into=first_name_field) # Clears the field
+        write("Working") # Need to add logic to add the first name
+
+        last_name_field = TextField(to_right_of=Text('Last Name *:'))
+        click(last_name_field)
+        write("", into=last_name_field)
+        write('Last Name') # Need to add logic to add the last name
+
+        emp_id_field = TextField(to_right_of=Text('Employee ID *:'))
+        write("", into=emp_id_field)
+        write('Employee ID') # placeholder
+
+        badge_number_field = TextField(to_right_of=Text('Badge #:'))
+        write("", into=badge_number_field)
+        write('Badge Number') # placeholder
+
+        dept = Link("User Group Membership")
+        click(dept)
+        
+        #TODO
+        # Implement function to edit the group assignment
+
+    
 
 
         
