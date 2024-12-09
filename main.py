@@ -3,9 +3,12 @@ from helium import CLEAR
 from dotenv import load_dotenv
 import os
 import pandas as pd
+import time
 
 # Load environment variables
 load_dotenv()
+
+
 
 apex_users = os.getenv("EXCEL_FILE")
 
@@ -66,7 +69,7 @@ def add_users_to_system():
 def add_user():#first_name, last_name, employee_id, badge_number, department):
     highlight(TextField(below=Link('Add a User')))
     click(TextField(below=Link('Add a User')))
-    write('Barrack Obama')
+    write('Working')
     highlight(Button('Search'))
     click(Button('Search'))
 
@@ -102,6 +105,10 @@ def add_user():#first_name, last_name, employee_id, badge_number, department):
 
         dept = Link("User Group Membership")
         click(dept)
+        edit_all_checkboxes()
+        #click(Button("Save"))
+
+
     else:
         print("Badge number doesn't exist -- adding user.")
         add_user_link = Link("Add a User")
@@ -127,13 +134,27 @@ def add_user():#first_name, last_name, employee_id, badge_number, department):
 
         dept = Link("User Group Membership")
         click(dept)
-        
-        #TODO
         # Implement function to edit the group assignment
-
-    
-
-
+        #TODO
         
 
+
+def edit_all_checkboxes():
+    wait_until(Text("User Group Membership").exists)
+    print("Unchecking all checkboxes.")
+    checkboxes = [
+        "input[id='editMembershipCheck0']", "input[id='editMembershipCheck1']", "input[id='editMembershipCheck2']",
+        "input[id='editMembershipCheck3']", "input[id='editMembershipCheck4']", "input[id='editMembershipCheck5']",
+        "input[id='editMembershipCheck6']", "input[id='editMembershipCheck7']", "input[id='editMembershipCheck8']",
+        "input[id='editMembershipCheck9']", "input[id='editMembershipCheck10']", "input[id='editMembershipCheck11']"
+    ]
+
+    for checkbox in checkboxes:
+        checkbox_element = S(checkbox).web_element
+        if checkbox_element.is_selected():
+            highlight(S(checkbox))
+            click(S(checkbox))
+        else:
+            print("Checkbox is already unchecked.")
+            
 open_apex()
