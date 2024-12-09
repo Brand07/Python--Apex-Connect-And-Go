@@ -164,3 +164,6 @@ cython_debug/
 # VS Code Files
 .vscode/
 New_Apex_Users.xlsx
+
+#python files
+refence.py
