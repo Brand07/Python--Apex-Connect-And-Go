@@ -18,7 +18,7 @@ def format_badge_number(badge_number):
     # Converts the badge number to a string
     badge_str = str(badge_number)
     # Check the length of the badge number
-    if len(badge_number) == 4:
+    if len(badge_str) == 4:
         # If 4 digits long, add a "0" at the beginning
         return "0" + badge_str
     elif len(badge_str) == 5:
@@ -122,7 +122,7 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
         badge_number_field = TextField(to_right_of=Text('Badge #:'))
         highlight(badge_number_field)
         write("", into=badge_number_field)
-        write(format_badge_number(badge_num, into=badge_number_field))
+        write(format_badge_number(badge_num))
     
 
         # TODO
