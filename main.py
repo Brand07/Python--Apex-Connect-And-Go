@@ -10,7 +10,8 @@ load_dotenv()
 
 
 
-apex_users = os.getenv("EXCEL_FILE")
+#apex_users = os.getenv("EXCEL_FILE")
+apex_users = pd.read_excel("New_Apex_Users.xlsx")
 
 def format_badge_number(badge_number):
     # Converts the badge number to a string
@@ -45,12 +46,15 @@ def open_profile_manager():
     click(Link('Profile Manager'))
     highlight(Link('Manage Users'))
     click(Link('Manage Users'))
-    add_user()
+    print("Proceeding to add users")
+    time.sleep(3)
+    process_users()
 
 
-def add_users_to_system():
+def process_users():
     global first_name, last_name, employee_id, badge_num, department
     # Loop through each row in the Excel file
+    print("Adding users to the system.")
     for index, row in apex_users.iterrows():
         first_name = row['First Name']
         last_name = row['Last Name']
@@ -66,12 +70,21 @@ def add_users_to_system():
         add_user(first_name, last_name, employee_id, badge_num, department)
     
 
-def add_user():#first_name, last_name, employee_id, badge_number, department):
+def add_user(first_name, last_name, employee_id, badge_num, department):
+    print("Adding user to the system.")
+    print("Waiting for 'Add a User' link to exist.")
+    wait_until(Link('Add a User').exists)
+    print("Found 'Add a User' link.")
     highlight(TextField(below=Link('Add a User')))
+    print("Highlighted 'Add a User' field.")
     click(TextField(below=Link('Add a User')))
-    write('Working')
+    print("Clicked 'Add a User' field.")
+    write(f'{badge_num}')
+    print(f"Wrote badge number: {badge_num}")
     highlight(Button('Search'))
+    print("Highlighted 'Search' button.")
     click(Button('Search'))
+    print("Clicked 'Search' button.")
 
     user_element = S("//*[@id='tr0']")
 
@@ -84,21 +97,21 @@ def add_user():#first_name, last_name, employee_id, badge_number, department):
 
         first_name_field = TextField(to_right_of=Text('First Name *:'))
         click(first_name_field)
-        write("", into=first_name_field) # Clears the field
-        write("Working") # Need to add logic to add the first name
+        write(first_name, into=first_name_field) # Clears the field
+        write(first_name) # Need to add logic to add the first name
 
         last_name_field = TextField(to_right_of=Text('Last Name *:'))
         click(last_name_field)
-        write("", into=last_name_field)
-        write('Last Name') # Need to add logic to add the last name
+        write(last_name, into=last_name_field)
+        write(last_name) # Need to add logic to add the last name
 
         emp_id_field = TextField(to_right_of=Text('Employee ID *:'))
-        write("", into=emp_id_field)
-        write('Employee ID') # placeholder
+        write(employee_id, into=emp_id_field)
+        write(employee_id) # placeholder
 
         badge_number_field = TextField(to_right_of=Text('Badge #:'))
-        write("", into=badge_number_field)
-        write('Badge Number') # placeholder
+        write(badge_num, into=badge_number_field)
+        write(badge_num) # placeholder
 
         # TODO
         """Add Logic to edit the group membership"""
@@ -107,6 +120,8 @@ def add_user():#first_name, last_name, employee_id, badge_number, department):
         click(dept)
         edit_all_checkboxes()
         #click(Button("Save"))
+        edit_group_assignment(department)
+        print("Clicking the save button")
 
 
     else:
@@ -156,5 +171,62 @@ def edit_all_checkboxes():
             click(S(checkbox))
         else:
             print("Checkbox is already unchecked.")
+
+
+def group_assignment(group):
+    print("Assigning the group.")
+    time.sleep(1)
+    if department == "Cycle Count":
+        return group_selection(2)
+    elif department == "General":
+        return group_selection(3)
+    elif department == "Material Handler":
+        return group_selection(4)
+    elif department == "Sort":
+        return group_selection(5)
+    elif department == "Voice Pick":
+        return group_selection(6)            
+
+def edit_group_assignment(group):
+    """HTML IDs are different when editing a user
+    vs adding a user."""
+    print("Editing the group assignment.")
+    time.sleep(1)
+    if department == "Cycle Count":
+        return edit_group_selection(2)
+    elif department == "General":
+        return edit_group_selection(3)
+    elif department == "Material Handler":
+        return edit_group_selection(4)
+    elif department == "Sort":
+        return edit_group_selection(5)
+    elif department == "Voice Pick":
+        return edit_group_selection(6)
+
+def edit_group_selection(group):
+    try:
+        wait_until(Text("User Group Membership").exists)
+        checkbox = f"input[id='editMembershipCheck{group}']"
+        checkbox_element = S(checkbox).web_element
+        if checkbox_element.is_selected():
+            highlight(S(checkbox))
+            click(S(checkbox))
+        else:
+            print("Checkbox is already unchecked.")
+    except Exception as e:
+        print(e)
+
+def group_selection(group):
+    try:
+        wait_until(Text("User Group Membership").exists)
+        checkbox = f"input[id='editMembershipCheck{group}']"
+        checkbox_element = S(checkbox).web_element
+        if checkbox_element.is_selected():
+            print("Checkbox is already selected.")
+        else:
+            highlight(S(checkbox))
+            click(S(checkbox))
+    except Exception as e:
+        print(e)
             
 open_apex()
