@@ -9,6 +9,20 @@ load_dotenv()
 
 apex_users = os.getenv("EXCEL_FILE")
 
+def format_badge_number(badge_number):
+    # Converts the badge number to a string
+    badge_str = str(badge_number)
+    # Check the length of the badge number
+    if len(badge_number) == 4:
+        # If 4 digits long, add a "0" at the beginning
+        return "0" + badge_str
+    elif len(badge_str) == 5:
+        # If 5 digits long, return as is
+        return badge_str
+    else:
+        print("Badge number must be 4 or 5 digits long")
+        return None
+
 def open_apex():
     # Start Firefox and navigate to the APEX URL
     start_firefox(os.getenv('APEX_URL'))
@@ -68,7 +82,22 @@ def add_user():#first_name, last_name, employee_id, badge_number, department):
         first_name_field = TextField(to_right_of=Text('First Name *:'))
         click(first_name_field)
         write("", into=first_name_field) # Clears the field
-        write("Working")
+        write("Working") # Need to add logic to add the first name
+
+        last_name_field = TextField(to_right_of=Text('Last Name *:'))
+        click(last_name_field)
+        write("", into=last_name_field)
+        write('Last Name') # Need to add logic to add the last name
+
+        emp_id_field = TextField(to_right_of=Text('Employee ID *:'))
+        write("", into=emp_id_field)
+        write('Employee ID') # placeholder
+
+        badge_number_field = TextField(to_right_of=Text('Badge #:'))
+        write("", into=badge_number_field)
+        write('Badge Number') # placeholder
+
+
         
 
 open_apex()
