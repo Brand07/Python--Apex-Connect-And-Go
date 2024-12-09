@@ -1,4 +1,5 @@
 from helium import *
+from helium import CLEAR
 from dotenv import load_dotenv
 import os
 import pandas as pd
@@ -54,5 +55,20 @@ def add_user():#first_name, last_name, employee_id, badge_number, department):
     write('Test')
     highlight(Button('Search'))
     click(Button('Search'))
+
+    user_element = S("//*[@id='tr0']")
+
+    if user_element.exists():
+        print("Info already exists")
+        #print(f"{badge_num} already exists. Chanigng the existing info.")
+        last_name_element = S("#tr0 > td:nth-child(1) > a:nth-child(1)")
+        click(last_name_element)
+        print("Last name element clicked.")
+
+        first_name_field = TextField(to_right_of=Text('First Name *:'))
+        click(first_name_field)
+        write("", into=first_name_field) # Clears the field
+        write("Working")
+        
 
 open_apex()
