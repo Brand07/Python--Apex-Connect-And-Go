@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 import pandas as pd
 import time
+import sys
 
 # Load environment variables
 load_dotenv()
@@ -26,6 +27,9 @@ def format_badge_number(badge_number):
     elif len(badge_str) == 5:
         # If 5 digits long, return as is
         return badge_str
+    elif len(badge_str) > 5:
+        print("Badge number is too long. Please correct entries in the file.")
+        sys.exit()
     else:
         print("Badge number must be 4 or 5 digits long")
         return None
@@ -34,7 +38,7 @@ def open_apex():
     # Start Firefox and navigate to the APEX URL
     start_firefox(os.getenv('APEX_URL'))
 
-# Wait for the page to load
+    # Wait for the page to load
     wait_until(Button("Sign In »").exists)
     write(os.getenv('APEX_USERNAME'), into="Username")
     write(os.getenv('APEX_PASSWORD'), into="Password")
@@ -50,7 +54,7 @@ def open_profile_manager():
     highlight(Link('Manage Users'))
     click(Link('Manage Users'))
     print("Proceeding to add users")
-    time.sleep(3)
+    time.sleep(1)
     process_users()
 
 
@@ -76,6 +80,9 @@ def process_users():
     
 
 def add_user(first_name, last_name, employee_id, badge_num, department):
+    """Adds the user to the system. If the badge number is already in the system,
+    it will edit the existing user info with the new information."""
+
     global users_added, users_edited
 
     print("Waiting for 'Add a User' link to exist.")
