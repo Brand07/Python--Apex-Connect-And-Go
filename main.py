@@ -8,9 +8,11 @@ import time
 # Load environment variables
 load_dotenv()
 
+users_added = 0
+users_edited = 0
 
 
-#apex_users = os.getenv("EXCEL_FILE")
+
 apex_users = pd.read_excel("New_Apex_Users.xlsx")
 print(apex_users)
 
@@ -74,6 +76,7 @@ def process_users():
     
 
 def add_user(first_name, last_name, employee_id, badge_num, department):
+    global users_added, users_edited
     print("At the add user function.")
     print("Waiting for 'Add a User' link to exist.")
     wait_until(Link('Add a User').exists)
@@ -85,6 +88,7 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
     write("", into=TextField(below=Link('Add a User')))
     write(f'{badge_num}')
     print(f"Wrote badge number: {badge_num}")
+
     highlight(Button('Search'))
     print("Highlighted 'Search' button.")
     click(Button('Search'))
@@ -94,8 +98,8 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
     time.sleep(1)
 
     if user_element.exists():
-        print("Info already exists")
-        #print(f"{badge_num} already exists. Chanigng the existing info.")
+        #print("Info already exists")
+        print(f"{badge_num} already exists. Chanigng the existing info.")
         last_name_element = S("#tr0 > td:nth-child(1) > a:nth-child(1)")
         highlight(last_name_element)
         click(last_name_element)
@@ -123,18 +127,14 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
         highlight(badge_number_field)
         write("", into=badge_number_field)
         write(format_badge_number(badge_num))
-    
-
-        # TODO
-        """Add Logic to edit the group membership"""
 
         dept = Link("User Group Membership")
         click(dept)
         edit_all_checkboxes()
         #click(Button("Save"))
         edit_group_assignment(department)
+        users_edited += 1
         print("Clicking the save button")
-
 
     else:
         print("Badge number doesn't exist -- adding user.")
@@ -158,6 +158,8 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
         badge_number_field = TextField(to_right_of=Text('Badge #:'))
         write("", into=badge_number_field)
         write(format_badge_number(badge_num)) # placeholder
+
+        users_added += 1
 
         dept = Link("User Group Membership")
         click(dept)
@@ -241,5 +243,7 @@ def group_selection(group):
         click(Button("Ok"))
     except Exception as e:
         print(e)
-            
+
 open_apex()
+print(f"{users_added} users added.")
+print(f"{users_edited} users edited.")
