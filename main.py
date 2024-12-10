@@ -5,6 +5,8 @@ import pandas as pd
 import time
 import sys
 import logging
+import exceptions
+from exceptions import LoginError
 
 # Configure logging to write to a file
 logging.basicConfig(
@@ -51,9 +53,14 @@ def open_apex():
 
     # Wait for the page to load
     wait_until(Button("Sign In »").exists)
+    highlight("Username")
     write(os.getenv("APEX_USERNAME"), into="Username")
+    highlight("Password")
     write(os.getenv("APEX_PASSWORD"), into="Password")
     click(Button("Sign In »"))
+    if Text("Invalid Login/Password!").exists():
+        raise LoginError("Invalid username or password. Please try again.")
+
     wait_until(Link("Profile Manager").exists)
 
     # Open the profile manager
