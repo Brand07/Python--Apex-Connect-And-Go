@@ -54,6 +54,10 @@ Custom exceptions are defined in the `exceptions.py` file. The `LoginError` exce
 - `.env`: Contains environment variables for the Apex URL, username, and password.
 - `apex.log`: Log file for the automation process.
 
+## Note
+This project is geared mostly to my environment. With that being said, you will more than likely need to change some things such as the group assignments, badge number format, etc.
+Open an issue if you'd like some assistance with this.
+
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for more details.
