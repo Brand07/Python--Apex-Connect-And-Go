@@ -4,6 +4,17 @@ import os
 import pandas as pd
 import time
 import sys
+import logging
+
+# Configure logging to write to a file
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("apex.log"),
+        logging.StreamHandler()
+    ]
+)
 
 # Load environment variables
 load_dotenv()
@@ -29,9 +40,11 @@ def format_badge_number(badge_number):
         return badge_str
     elif len(badge_str) > 5:
         print("Badge number is too long. Please correct entries in the file.")
+        loggin.error("Badge number is too long. Please correct entries in the file.")
         sys.exit()
     else:
         print("Badge number must be 4 or 5 digits long")
+        logging.error("Badge number must be 4 or 5 digits long")
         return None
 
 def open_apex():
@@ -93,9 +106,8 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
     write(f'{badge_num}')
 
     highlight(Button('Search'))
-    print("Highlighted 'Search' button.")
     click(Button('Search'))
-    print("Clicked 'Search' button.")
+
 
     user_element = S("//*[@id='tr0']")
     time.sleep(1)
@@ -137,10 +149,12 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
         #click(Button("Save"))
         edit_group_assignment(department)
         users_edited += 1
+        logging.info(f"Badge # {badge_num} edited.")
         print("Clicking the save button")
 
     else:
         print("Badge number doesn't exist -- adding user.")
+        logging.info(f"Badge # {badge_num} doesn't exist -- adding user.")
         add_user_link = Link("Add a User")
         click(add_user_link)
 
@@ -166,8 +180,6 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
 
         dept = Link("User Group Membership")
         click(dept)
-        # Implement function to edit the group assignment
-        #TODO
         group_assignment(department)
 
 
