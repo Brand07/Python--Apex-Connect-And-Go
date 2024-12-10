@@ -1,5 +1,4 @@
 from helium import *
-from helium import CLEAR
 from dotenv import load_dotenv
 import os
 import pandas as pd
@@ -8,6 +7,7 @@ import time
 # Load environment variables
 load_dotenv()
 
+# Initialize counters
 users_added = 0
 users_edited = 0
 
@@ -77,17 +77,13 @@ def process_users():
 
 def add_user(first_name, last_name, employee_id, badge_num, department):
     global users_added, users_edited
-    print("At the add user function.")
+
     print("Waiting for 'Add a User' link to exist.")
     wait_until(Link('Add a User').exists)
-    print("Found 'Add a User' link.")
     highlight(TextField(below=Link('Add a User')))
-    print("Highlighted 'Add a User' field.")
     click(TextField(below=Link('Add a User')))
-    print("Clicked 'Add a User' field.")
     write("", into=TextField(below=Link('Add a User')))
     write(f'{badge_num}')
-    print(f"Wrote badge number: {badge_num}")
 
     highlight(Button('Search'))
     print("Highlighted 'Search' button.")
