@@ -1,12 +1,14 @@
-from helium import *
+# ruff: noqa: F405, F403
+import polars as pl
+from helium import *  
 from dotenv import load_dotenv
 import os
 import pandas as pd
 import time
 import sys
 import logging
-import exceptions
 from exceptions import LoginError
+import csv
 
 # Configure logging to write to a file
 logging.basicConfig(
@@ -23,8 +25,9 @@ users_added = 0
 users_edited = 0
 
 
-apex_users = pd.read_excel("New_Apex_Users.xlsx")
-print(f"Users to be added:\n {apex_users}")
+apex_users = pl.read_excel("New_Apex_Users.xlsx")
+print(f"Number of users to be added: {len(apex_users)}\n")
+print(f"Users to be added:\n {apex_users}\n")
 
 
 def format_badge_number(badge_number):
@@ -39,7 +42,7 @@ def format_badge_number(badge_number):
         return badge_str
     elif len(badge_str) > 5:
         print("Badge number is too long. Please correct entries in the file.")
-        loggin.error("Badge number is too long. Please correct entries in the file.")
+        logging.error("Badge number is too long. Please correct entries in the file.")
         sys.exit()
     else:
         print("Badge number must be 4 or 5 digits long")
@@ -49,15 +52,15 @@ def format_badge_number(badge_number):
 
 def open_apex():
     # Start Firefox and navigate to the APEX URL
-    start_firefox(os.getenv("APEX_URL"))
+    start_firefox(os.getenv("APEX_URL"))  # noqa: F405
 
     # Wait for the page to load
-    wait_until(Button("Sign In »").exists)
-    highlight("Username")
+    wait_until(Button("Sign In »").exists)  # noqa: F405
+    highlight("Username")  # noqa: F405
     write(os.getenv("APEX_USERNAME"), into="Username")
     highlight("Password")
-    write(os.getenv("APEX_PASSWORD"), into="Password")
-    click(Button("Sign In »"))
+    write("Christmas77", into="Password")
+    click(Button("Sign In »"))  # noqa: F405
     if Text("Invalid Login/Password!").exists():
         raise LoginError("Invalid username or password. Please try again.")
 
@@ -81,7 +84,7 @@ def process_users():
     global first_name, last_name, employee_id, badge_num, department
     # Loop through each row in the Excel file
     print("Adding users to the system.")
-    for index, row in apex_users.iterrows():
+    for row in apex_users.iter_rows(named=True):
         first_name = row["First Name"]
         last_name = row["Last Name"]
         employee_id = row["Badge Number"]
@@ -95,6 +98,12 @@ def process_users():
         department = row["Department"]
 
         add_user(first_name, last_name, employee_id, badge_num, department)
+
+     # Write the counters to a CSV file
+    with open('user_tally.csv', mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Users Added', 'Users Edited'])
+        writer.writerow([users_added, users_edited])
 
 
 def add_user(first_name, last_name, employee_id, badge_num, department):
@@ -129,7 +138,7 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
         write(first_name, into=first_name_field)  # Clears the field
 
         last_name_field = TextField(to_right_of=Text("Last Name *:"))
-        highlight(last_name_field)
+        highlight(last_name_field)  # noqa: F405
         click(last_name_field)
         write("", into=last_name_field)  # Clears the field
         write(last_name, into=last_name_field)
@@ -181,6 +190,7 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
 
         dept = Link("User Group Membership")
         click(dept)
+        uncheck_all_checkboxes()
         group_assignment(department)
 
 
@@ -200,6 +210,33 @@ def edit_all_checkboxes():
         "input[id='editMembershipCheck9']",
         "input[id='editMembershipCheck10']",
         "input[id='editMembershipCheck11']",
+    ]
+
+    for checkbox in checkboxes:
+        checkbox_element = S(checkbox).web_element
+        if checkbox_element.is_selected():
+            highlight(S(checkbox))
+            click(S(checkbox))
+        else:
+            print("Checkbox is already unchecked.")
+
+def uncheck_all_checkboxes():
+    """Unchecks all the cheboxes when adding a new user"""
+    wait_until(Text("User Group Membership").exists)
+    print("Unchecking all checkboxes.")
+    checkboxes = [
+        "input[id='membershipCheck0']",
+        "input[id='membershipCheck1']",
+        "input[id='membershipCheck2']",
+        "input[id='membershipCheck3']",
+        "input[id='membershipCheck4']",
+        "input[id='membershipCheck5']",
+        "input[id='membershipCheck6']",
+        "input[id='membershipCheck7']",
+        "input[id='membershipCheck8']",
+        "input[id='membershipCheck9']",
+        "input[id='membershipCheck10']",
+        "input[id='membershipCheck11']",
     ]
 
     for checkbox in checkboxes:
@@ -247,7 +284,7 @@ def edit_group_selection(group):
         wait_until(Text("User Group Membership").exists)
         print("Edit window is open.")
         checkbox = f"input[id='editMembershipCheck{group}']"
-        checkbox_element = S(checkbox).web_element
+        #checkbox_element = S(checkbox).web_element
         highlight(S(checkbox))
         click(S(checkbox))
         click(Button("Save"))
@@ -260,7 +297,7 @@ def group_selection(group):
     try:
         wait_until(Text("User Group Membership").exists)
         checkbox = f"input[id='membershipCheck{group}']"
-        checkbox_element = S(checkbox).web_element
+        #checkbox_element = S(checkbox).web_element
         print("Checkbox is already selected.")
         highlight(S(checkbox))
         click(S(checkbox))
