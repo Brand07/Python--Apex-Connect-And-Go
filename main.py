@@ -1,9 +1,8 @@
 # ruff: noqa: F405, F403
 import polars as pl
-from helium import *  
+from helium import *
 from dotenv import load_dotenv
 import os
-import pandas as pd
 import time
 import sys
 import logging
@@ -59,7 +58,8 @@ def open_apex():
     highlight("Username")  # noqa: F405
     write(os.getenv("APEX_USERNAME"), into="Username")
     highlight("Password")
-    write("Christmas77", into="Password")
+    write(os.getenv("APEX_PASSWORD"), into="password")
+    #write("Christmas77", into="Password")
     click(Button("Sign In »"))  # noqa: F405
     if Text("Invalid Login/Password!").exists():
         raise LoginError("Invalid username or password. Please try again.")
@@ -88,13 +88,7 @@ def process_users():
         first_name = row["First Name"]
         last_name = row["Last Name"]
         employee_id = row["Badge Number"]
-
-        if pd.isna(row["Badge Number"]):
-            print("test 1")
-            continue
-        else:
-            badge_num = int(row["Badge Number"])
-
+        badge_num = int(row["Badge Number"])
         department = row["Department"]
 
         add_user(first_name, last_name, employee_id, badge_num, department)
