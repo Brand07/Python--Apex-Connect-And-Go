@@ -167,8 +167,8 @@ cython_debug/
 
 
 #Excel files
-.xlsx
-.csv
+*.xlsx
+*.csv
 
 #python files
 reference.py
