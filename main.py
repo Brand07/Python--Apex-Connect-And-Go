@@ -6,8 +6,9 @@ import os
 import time
 import sys
 import logging
-from exceptions import LoginError
+from exceptions import LoginError, GroupAssignmentException
 import csv
+import pandas as pd
 
 # Configure logging to write to a file
 logging.basicConfig(
@@ -24,9 +25,12 @@ users_added = 0
 users_edited = 0
 
 
-apex_users = pl.read_excel("New_Apex_Users.xlsx")
+apex_users = pd.read_excel("New_Apex_Users.xlsx", sheet_name="Sheet1")
 print(f"Number of users to be added: {len(apex_users)}\n")
 print(f"Users to be added:\n {apex_users}\n")
+
+#Archive sheet for users added
+archive_df = pd.read_excel("New_Apex_Users.xlsx", sheet_name="Archive")
 
 
 def format_badge_number(badge_number):
@@ -63,6 +67,7 @@ def open_apex():
     click(Button("Sign In »"))  # noqa: F405
     if Text("Invalid Login/Password!").exists():
         raise LoginError("Invalid username or password. Please try again.")
+    
 
     wait_until(Link("Profile Manager").exists)
 
@@ -81,10 +86,13 @@ def open_profile_manager():
 
 
 def process_users():
+    global archive_df
+    global apex_users
     global first_name, last_name, employee_id, badge_num, department
     # Loop through each row in the Excel file
     print("Adding users to the system.")
-    for row in apex_users.iter_rows(named=True):
+    rows_to_move = [] # Rows to be appended to "Archive" sheet.
+    for index, row in apex_users.iterrows():
         first_name = row["First Name"]
         last_name = row["Last Name"]
         employee_id = row["Badge Number"]
@@ -93,11 +101,22 @@ def process_users():
 
         add_user(first_name, last_name, employee_id, badge_num, department)
 
-     # Write the counters to a CSV file
-    with open('user_tally.csv', mode='a', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Users Added', 'Users Edited'])
-        writer.writerow([users_added, users_edited])
+        # Move the row to the Archive sheet
+        rows_to_move.append(row)
+
+    # Append the data
+    if rows_to_move:
+        rows_to_move_df = pd.DataFrame(rows_to_move)
+        archive_df = pd.concat([archive_df, rows_to_move_df], ignore_index=True)
+
+    # Remove the moved rows from Sheet1 DataFrame
+    moved_badge_numbers = rows_to_move_df["Badge Number"]
+    apex_users = apex_users[~apex_users["Badge Number"].isin(moved_badge_numbers)]
+
+    # Write the updated DataFrames back to the Excel file
+    with pd.ExcelWriter("New_Apex_Users.xlsx", engine='openpyxl') as writer:
+        apex_users.to_excel(writer, sheet_name="Sheet1", index=False)
+        archive_df.to_excel(writer, sheet_name="Archive", index=False)
 
 
 def add_user(first_name, last_name, employee_id, badge_num, department):
@@ -283,7 +302,7 @@ def edit_group_selection(group):
         click(S(checkbox))
         click(Button("Save"))
         click(Button("Save"))
-    except Exception as e:
+    except  GroupAssignmentException as e:
         print(e)
 
 
