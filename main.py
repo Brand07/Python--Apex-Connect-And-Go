@@ -28,6 +28,12 @@ apex_users = pd.read_excel("New_Apex_Users.xlsx", sheet_name="Sheet1")
 print(f"Number of users to be added: {len(apex_users)}\n")
 print(f"Users to be added:\n {apex_users}\n")
 
+# Check if the file is empty
+if apex_users.empty:
+    print("The file is empty. Please add users to the file.")
+    logging.error("The file is empty. Please add users to the file.")
+    sys.exit()
+
 #Archive sheet for users added
 archive_df = pd.read_excel("New_Apex_Users.xlsx", sheet_name="Archive")
 
