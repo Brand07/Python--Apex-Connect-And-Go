@@ -7,7 +7,6 @@ import time
 import sys
 import logging
 from exceptions import LoginError, GroupAssignmentException
-import csv
 import pandas as pd
 
 # Configure logging to write to a file
@@ -63,7 +62,7 @@ def open_apex():
     write(os.getenv("APEX_USERNAME"), into="Username")
     highlight("Password")
     write(os.getenv("APEX_PASSWORD"), into="password")
-    #write("Christmas77", into="Password")
+
     click(Button("Sign In »"))  # noqa: F405
     if Text("Invalid Login/Password!").exists():
         raise LoginError("Invalid username or password. Please try again.")
