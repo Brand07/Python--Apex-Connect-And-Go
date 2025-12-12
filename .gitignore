@@ -162,8 +162,9 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# VS Code Files
+# IDE Code Files
 .vscode/
+.idea
 
 
 #Excel files
@@ -173,3 +174,4 @@ cython_debug/
 #python files
 reference.py
 fresh_import.py
+
