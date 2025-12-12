@@ -6,7 +6,7 @@ This project automates the process of adding and editing users in the Apex syste
 
 ## Prerequisites
 
-- Python 3.6 or higher
+- Python 3.14 or higher
 - Firefox browser
 - `pip` for managing Python packages
 
