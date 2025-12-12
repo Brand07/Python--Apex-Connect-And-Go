@@ -1,0 +1,9 @@
+[project]
+name = "python-apex-connect-and-go"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.13"
+dependencies = [
+    "helium>=5.1.2",
+    "polars>=1.36.1",
+]
