@@ -23,8 +23,10 @@ load_dotenv()
 users_added = 0
 users_edited = 0
 
+excel_file = os.getenv("EXCEL_FILE")
 
-apex_users = pd.read_excel("New_Apex_Users.xlsx", sheet_name="Sheet1")
+
+apex_users = pd.read_excel(excel_file, sheet_name="Sheet1")
 print(f"Number of users to be added: {len(apex_users)}\n")
 print(f"Users to be added:\n {apex_users}\n")
 
@@ -35,7 +37,7 @@ if apex_users.empty:
     sys.exit()
 
 #Archive sheet for users added
-archive_df = pd.read_excel("New_Apex_Users.xlsx", sheet_name="Archive")
+archive_df = pd.read_excel(excel_file, sheet_name="Archive")
 
 
 def format_badge_number(badge_number):
@@ -67,7 +69,8 @@ def open_apex():
     highlight("Username")  # noqa: F405
     write(os.getenv("APEX_USERNAME"), into="Username")
     highlight("Password")
-    write(os.getenv("APEX_PASSWORD"), into="password")
+    write(os.getenv("APEX_PASSWORD"), into=S("#user\.password"))
+    
 
     click(Button("Sign In »"))  # noqa: F405
     if Text("Invalid Login/Password!").exists():
