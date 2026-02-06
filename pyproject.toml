@@ -4,6 +4,10 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.13"
 dependencies = [
+    "dotenv>=0.9.9",
     "helium>=5.1.2",
+    "openpyxl>=3.1.5",
+    "pandas>=3.0.0",
     "polars>=1.36.1",
+    "requests>=2.32.5",
 ]
