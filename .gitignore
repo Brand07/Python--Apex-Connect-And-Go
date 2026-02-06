@@ -174,4 +174,7 @@ cython_debug/
 #python files
 reference.py
 
+#Other files
+*.iml
+
 
