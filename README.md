@@ -54,6 +54,17 @@ Custom exceptions are defined in the `exceptions.py` file. The `LoginError` exce
 - `.env`: Contains environment variables for the Apex URL, username, and password.
 - `apex.log`: Log file for the automation process.
 
+## (Optional) FreshService Ticket Logging
+
+Using the official FreshService API, automatic ticket logging can be achieved by setting the ``LogTickets`` bool to ``True`` and having the following information:
+ - ``requester_id``
+ - ``responder_id``
+ - ``group_id``
+ - ``api_key``
+ - ``api_url``
+
+See the ``fresh_import.py`` file for more details.
+
 ## Note
 This project is geared mostly to my environment. With that being said, you will more than likely need to change some things such as the group assignments, badge number format, etc.
 Open an issue if you'd like some assistance with this.
