@@ -1,5 +1,4 @@
 # ruff: noqa: F405, F403
-import polars as pl
 from helium import *
 from dotenv import load_dotenv
 import os
@@ -8,6 +7,10 @@ import sys
 import logging
 from exceptions import LoginError, GroupAssignmentException
 import pandas as pd
+from fresh_import import FreshServiceAPI, REQUESTER_ID, RESPONDER_ID
+
+# Control the ticket logging by flagging true or false
+LogTickets = True
 
 # Configure logging to write to a file
 logging.basicConfig(
@@ -18,6 +21,14 @@ logging.basicConfig(
 
 # Load environment variables
 load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
+API_URL = os.getenv("API_URL")
+REQUESTER_ID = os.getenv("REQUESTER_ID")
+RESPONDER_ID = os.getenv("RESPONDER_ID")
+GROUP_ID = os.getenv("GROUP_ID")
+fresh_service_api = FreshServiceAPI(api_url = API_URL, api_key = API_KEY)
+
 
 # Initialize counters
 users_added = 0
@@ -133,11 +144,12 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
 
     global users_added, users_edited
 
-    print("Waiting for 'Add a User' link to exist.")
-    wait_until(Link("Add a User").exists)
-    highlight(TextField(below=Link("Add a User")))
-    click(TextField(below=Link("Add a User")))
-    write("", into=TextField(below=Link("Add a User")))
+    #print("Waiting for 'Add a User' link to exist.")
+    #wait_until(Link("Add a User").exists)
+    highlight(TextField(to_right_of=Text("Find users : by name, or login ID, or employee ID, or Badge #")))
+    click(TextField(to_right_of=Text("Find users : by name, or login ID, or employee ID, or Badge #")))
+    #click(S("searchUsersText"))
+    write("", into=TextField(to_right_of=Text("Find users : by name, or login ID, or employee ID, or Badge #")))
     write(f"{badge_num}")
 
     highlight(Button("Search"))
@@ -147,7 +159,7 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
     time.sleep(1)
 
     if user_element.exists():
-        print(f"{badge_num} already exists. Chanigng the existing info.")
+        print(f"{badge_num} already exists. Changing the existing info.")
         last_name_element = S("#tr0 > td:nth-child(1) > a:nth-child(1)")
         highlight(last_name_element)
         click(last_name_element)
@@ -183,6 +195,28 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
         logging.info(f"Badge # {badge_num} edited.")
         print("Clicking the save button")
 
+        if LogTickets:
+            response = fresh_service_api.create_ticket(
+                subject = f"{first_name} {last_name} needs Apex access",
+                description = f"needs access to {department} guns.",
+                category = "Apex",
+                priority = 2,
+                status = 4,
+
+                type = "Service Request",
+                requester_id = int(REQUESTER_ID),
+                responder_id = int(RESPONDER_ID),
+                group_id = int(GROUP_ID),
+            )
+            resolution_notes = "User added with the requested permissions"
+
+            if response and "ticket" in response and resolution_notes:
+                ticket_id = response["ticket"]["id"]
+                fresh_service_api.update_ticket_resolution(ticket_id,
+                                                           resolution_notes)
+
+
+
     else:
         print("Badge number doesn't exist -- adding user.")
         logging.info(f"Badge # {badge_num} doesn't exist -- adding user.")
@@ -208,6 +242,28 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
         write(format_badge_number(badge_num))  # placeholder
 
         users_added += 1
+
+        if LogTickets:
+            response = fresh_service_api.create_ticket(
+                subject = f"{first_name} {last_name} needs Apex access",
+                description = f"needs access to {department} guns.",
+                category = "Apex",
+                priority = 2,
+                status = 4,
+
+                type = "Service Request",
+                requester_id = int(REQUESTER_ID),
+                responder_id = int(RESPONDER_ID),
+                group_id = int(GROUP_ID),
+            )
+            resolution_notes = "User added with the requested permissions"
+
+            if response and "ticket" in response and resolution_notes:
+                ticket_id = response["ticket"]["id"]
+                fresh_service_api.update_ticket_resolution(ticket_id,
+                                                           resolution_notes)
+
+
 
         dept = Link("User Group Membership")
         click(dept)
