@@ -49,10 +49,12 @@ Custom exceptions are defined in the `exceptions.py` file. The `LoginError` exce
 ## Project Structure
 
 - `main.py`: The main script that performs the automation.
+- `fresh_import.py`: Controls the optional ticket logging.
 - `exceptions.py`: Contains custom exception classes.
 - `requirements.txt`: Lists the Python dependencies for the project.
 - `.env`: Contains environment variables for the Apex URL, username, and password.
 - `apex.log`: Log file for the automation process.
+
 
 ## (Optional) FreshService Ticket Logging
 
