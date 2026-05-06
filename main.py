@@ -10,7 +10,7 @@ import pandas as pd
 from fresh_import import FreshServiceAPI, REQUESTER_ID, RESPONDER_ID
 
 # Control the ticket logging by flagging true or false
-LogTickets = False
+LogTickets = True
 
 # Configure logging to write to a file
 logging.basicConfig(
