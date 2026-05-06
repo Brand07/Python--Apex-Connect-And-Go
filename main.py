@@ -10,7 +10,7 @@ import pandas as pd
 from fresh_import import FreshServiceAPI, REQUESTER_ID, RESPONDER_ID
 
 # Control the ticket logging by flagging true or false
-LogTickets = True
+LogTickets = False
 
 # Configure logging to write to a file
 logging.basicConfig(
@@ -108,9 +108,10 @@ def process_users():
     global archive_df
     global apex_users
     global first_name, last_name, employee_id, badge_num, department
-    # Loop through each row in the Excel file
+
     print("Adding users to the system.")
-    rows_to_move = [] # Rows to be appended to "Archive" sheet.
+    rows_to_move = []
+
     for index, row in apex_users.iterrows():
         first_name = row["First Name"]
         last_name = row["Last Name"]
@@ -118,24 +119,27 @@ def process_users():
         badge_num = int(row["Badge Number"])
         department = row["Department"]
 
-        add_user(first_name, last_name, employee_id, badge_num, department)
+        try:
+            add_user(first_name, last_name, employee_id, badge_num, department)
+            rows_to_move.append(row)
+            logging.info(f"Badge # {badge_num} successfully processed and queued for archive.")
+        except Exception as e:
+            logging.error(f"Failed to process badge # {badge_num}: {e}")
+            # Row is NOT added to rows_to_move, so it stays in Sheet1 for retry
 
-        # Move the row to the Archive sheet
-        rows_to_move.append(row)
-
-    # Append the data
     if rows_to_move:
         rows_to_move_df = pd.DataFrame(rows_to_move)
         archive_df = pd.concat([archive_df, rows_to_move_df], ignore_index=True)
 
-    # Remove the moved rows from Sheet1 DataFrame
-    moved_badge_numbers = rows_to_move_df["Badge Number"]
-    apex_users = apex_users[~apex_users["Badge Number"].isin(moved_badge_numbers)]
+        moved_badge_numbers = rows_to_move_df["Badge Number"]
+        apex_users = apex_users[~apex_users["Badge Number"].isin(moved_badge_numbers)]
 
-    # Write the updated DataFrames back to the Excel file
-    with pd.ExcelWriter("New_Apex_Users.xlsx", engine='openpyxl') as writer:
+    # Write back to the ORIGINAL file, not a new one
+    with pd.ExcelWriter(excel_file, engine='openpyxl') as writer:
         apex_users.to_excel(writer, sheet_name="Sheet1", index=False)
         archive_df.to_excel(writer, sheet_name="Archive", index=False)
+
+    logging.info(f"Excel file updated. {len(rows_to_move)} user(s) archived.")
 
 
 def add_user(first_name, last_name, employee_id, badge_num, department):
