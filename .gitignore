@@ -177,4 +177,5 @@ reference.py
 #Other files
 *.iml
 
-
+# Zip Files
+*.zip
