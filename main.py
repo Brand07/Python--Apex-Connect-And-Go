@@ -80,7 +80,7 @@ def open_apex():
     highlight("Username")  # noqa: F405
     write(os.getenv("APEX_USERNAME"), into="Username")
     highlight("Password")
-    write(os.getenv("APEX_PASSWORD"), into=S("#user\.password"))
+    write(os.getenv("APEX_PASSWORD"), into=S(r"#user\.password"))
     
 
     click(Button("Sign In »"))  # noqa: F405
@@ -212,7 +212,7 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
                 responder_id = int(RESPONDER_ID),
                 group_id = int(GROUP_ID),
             )
-            resolution_notes = "User added with the requested permissions"
+            resolution_notes = "User added with the requested permissions."
 
             if response and "ticket" in response and resolution_notes:
                 ticket_id = response["ticket"]["id"]
@@ -341,7 +341,6 @@ def group_assignment(department):
         return group_selection(5)
     elif department == "Voice Pick":
         return group_selection(6)
-
 
 def edit_group_assignment(group):
     """HTML IDs are different when editing a user
