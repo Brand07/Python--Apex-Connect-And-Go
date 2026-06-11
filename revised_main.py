@@ -167,7 +167,7 @@ def add_add_sdr_permission(first_name, last_name, employee_id, badge_num, depart
     except Except as e:
         return e
 
-def process_users():
+def search_users():
     global archive_df
     global apex_users
     global first_name, last_name, employee_id, badge_num, department
@@ -183,6 +183,63 @@ def process_users():
         badge_num = int(row["Badge Number"])
         department = row["Department"]
 
+    try:
+        print("Writing the badge number into the search box.")
+        write(badge_num, into=S(web_elements["user_search"]["searchbox"]))
+        press(ENTER)
+
+        # See if the badge number is already in the system
+        if S(web_elements["user_search"]["existing_user"]).exists:
+            print(f"{badge_num} - already exists... editing the user.")
+            #TODO add a edit user function
+
+        else:
+            #TODO add an add user function
+            print("pending")
+    
+    except Exception as e:
+        print(e)
         
+
+
+def add_user(first_name, last_name, employee_id, badge_num, department):
+    try:
+        print("Clicking the 'Add a User' link.")
+        click(S(web_elements["user_search"]["add_user_button"]))
+
+        # Enter the first name
+        write(first_name, into=S(web_elements["add_user_page"]["add_first_name_element"]))
+        # Enter the last name
+        write(last_name, into=S(web_elements["add_user_page"]["add_first_name_element"]))
+        # Enter the formatted badge number into the employee ID and Badge Number field
+        write(format_badge_number(badge_num), into=web_elements["add_user_page"]["add_user_emp_id"])
+        write(format_badge_number(badge_num), into=web_elements["add_user_page"]["add_user_badge_num"])
+    
+    except Exception as e:
+        print(e)
+
+        """
+
+        Need to determine whether the user has or needs SDR access here.
+        Needing it means the user needs to be saved, then edited to add or remove.
+
+        If the user needs SDR access, it can be done here in the same place.
+
+        """
+    try:
+        print("Determining the user's needs SDR permissions...")
+
+        if department == "SDR":
+            # Add the permission via the 'Rule Assignment' option
+
+
+        
+
+
+
+    except Exception as e:
+        return e
+
+
 
 open_apex()
