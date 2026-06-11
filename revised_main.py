@@ -4,7 +4,8 @@ import os
 import time
 import sys
 import logging
-from exceptions import LoginError, GroupAssignmentException
+import yaml
+from exceptions import LoginError
 import pandas as pd
 from fresh_import import FreshServiceAPI, REQUESTER_ID, RESPONDER_ID
 
@@ -13,7 +14,7 @@ LogTickets = True
 
 # Configure logging to write to a file
 logging.basicConfig(
-    level=loggin.info,
+    level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler("apex.log"), logging.StreamHandler()],
 )
@@ -30,6 +31,9 @@ RESPONDER_ID = os.getenv("RESPONDER_ID")
 GROUP_ID = os.getenv("GROUP_ID")
 fresh_service_api = FreshServiceAPI(api_url = API_URL, api_key = API_KEY)
 APEX_USERS_URL = os.getenv("APEX_USERS_URL")
+APEX_URL = os.getenv("APEX_URL")
+APEX_USERNAME = os.getenv("APEX_USERNAME")
+APEX_PASSWORD = os.getenv("APEX_PASSWORD")
 excel_file = os.getenv("EXCEL_FILE")
 
 # ==== END Environment Variables ====
@@ -87,3 +91,28 @@ def format_badge_number(badge_number):
         print("Badge number must be 4 or 5 digits long.")
         logging.error("Badge number must be 4 or 5 digits long.")
         return None
+
+def open_apex():
+    """ Opens the Apex Website """
+    try:
+        start_firefox(APEX_URL)
+    except Exception as e:
+        return e
+
+def login():
+    # Controls the login logic
+    try:
+        # Wait for the page to load
+        wait_until(S(web_elements["login_page"]["sign_in_button"]).exists)
+        print("Sign In Button Exists.")
+        # Send the username
+        write(APEX_USERNAME, into=S(web_elements["login_page"]["username_field"]))
+
+        # Send the password
+        write(APEX_PASSWORD, into=S(web_elements["login_page"]["password_field"]))
+
+    except Exception as e:
+        print(e)
+
+
+open_apex()
