@@ -96,20 +96,44 @@ def open_apex():
     """ Opens the Apex Website """
     try:
         start_firefox(APEX_URL)
+        # Wait for the page to load
+        wait_until(S(web_elements["login_page"]["sign_in_button"]).exists)
+        print("Sign In Button Exists.")
+
+        login()
+
     except Exception as e:
         return e
 
 def login():
     # Controls the login logic
     try:
-        # Wait for the page to load
-        wait_until(S(web_elements["login_page"]["sign_in_button"]).exists)
-        print("Sign In Button Exists.")
         # Send the username
         write(APEX_USERNAME, into=S(web_elements["login_page"]["username_field"]))
 
         # Send the password
         write(APEX_PASSWORD, into=S(web_elements["login_page"]["password_field"]))
+
+        # CLick the Sign in Button
+        click(S(web_elements["login_page"]["sign_in_button"]))
+
+        # Wait for the profile button to load
+        wait_until(S(web_elements["to_user_profiles"]["profile_manager"]).exists)
+
+    
+        open_profile_manager()
+
+    except Exception as e:
+        print(e)
+
+def open_profile_manager():
+    print("Opening the profile manager")
+    # Navigates to the profile page to search users
+    try:
+        click(S(web_elements["to_user_profiles"]["profile_manager"]))
+        
+        # Click on 'Manage Users'
+        click(S(web_elements["login_page"]["sign_in_button"]))
 
     except Exception as e:
         print(e)
