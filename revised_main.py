@@ -35,6 +35,7 @@ APEX_URL = os.getenv("APEX_URL")
 APEX_USERNAME = os.getenv("APEX_USERNAME")
 APEX_PASSWORD = os.getenv("APEX_PASSWORD")
 excel_file = os.getenv("EXCEL_FILE")
+SDR_PERM = os.getenv("SDR_PERM")
 
 # ==== END Environment Variables ====
 
@@ -138,5 +139,50 @@ def open_profile_manager():
     except Exception as e:
         print(e)
 
+
+def add_remove_sdr_permissons(first_name, last_name, employee_id, badge_num, department):
+    """ Removes (NOT EDIT) SDR permissions if the user doesn't need them """
+    try:
+        if S(web_elements["other_elements"]["existing_sdr_perm"]) == SDR_PERM:
+            print("User has SDR permissions.")
+            #TODO add more logic to remove the permissions if necessary
+        else:
+            print("User does not have SDR permissions.")
+
+    except Exception as e:
+        return e
+
+def add_add_sdr_permission(first_name, last_name, employee_id, badge_num, department):
+    """Adds (Not EDIT) SDR permissions if the user doesn't need them"""
+    try:
+        print("Clicking on 'Rule Assignment'.")
+        click(S(web_elements["add_user_page"]["add_user_rule_assignment"]))
+        time.sleep(0.5)
+
+        print("Clicking on the SDR permission.")
+        click(S(web_elements["add_user_page"]["add_user_rule_assignment_sdr_perm"]))
+        print("Saving the permission.")
+        click(S(web_elements["add_user_page"]["add_user_rule_assignment_sdr_perm_save"]))
+
+    except Except as e:
+        return e
+
+def process_users():
+    global archive_df
+    global apex_users
+    global first_name, last_name, employee_id, badge_num, department
+
+    print("Adding users to the system.")
+
+    rows_to_move =[]
+
+    for index, row in apex_users.iterrows():
+        first_name = row["First Name"]
+        last_name = row["Last Name"]
+        employee_id = row["Badge Number"]
+        badge_num = int(row["Badge Number"])
+        department = row["Department"]
+
+        
 
 open_apex()
