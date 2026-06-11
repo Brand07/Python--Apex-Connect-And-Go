@@ -1,0 +1,46 @@
+login_page:
+  username_field: '#user\.login_id'
+  password_field: '#user\.password'
+  sign_in_button: '#btnLogon'
+
+to_user_profiles:
+  profile_manager: '#logout_left > a:nth-child(1)'
+  manage_users: '#pageBody > div.drawers-wrapper > ul > li:nth-child(1) > ul > li:nth-child(1)'
+
+user_search:
+  search_box: '#searchUsersText'
+  search_button: '#searchAddUser2 > button'
+  existing_user: '#tr0 > td:nth-child(1) > a'
+
+add_user_page:
+  add_first_name_element: '#user\.first_name'
+  add_last_name_element: '#user\.last_name'
+  add_user_emp_id: '#addPassport\.employee_id'
+  add_user_badge_num: '#addPassport\.user_card_key'
+  add_user_rule_assignment: '#deviceUserTable > tbody > tr:nth-child(6) > td:nth-child(1) > a'
+  add_user_group_memebership: '#deviceUserTable > tbody > tr:nth-child(7) > td:nth-child(1) > a'
+  add_user_save_button: '#apexTblDisplay > tbody > tr > td > button'
+
+  add_user_rule_assignment_sdr_perm: '#ruleAssignmentTable > tbody > tr:nth-child(16) > td:nth-child(1) > input[type=checkbox]'
+  add_user_group_memberhsip_perm_cc: '#membershipCheck2'
+  add_user_group_memebership_perm_mh: '#membershipCheck4'
+  add_user_group_memebership_perm_sort: '#membershipCheck5'
+  add_user_group_memberhsip_perm_pick: '#membershipCheck6'
+
+edit_user_page:
+  edit_first_name_element: '#edit_user\.first_name'
+  edit_user_last_name: '#edit_user\.last_name'
+  edit_user_emp_id: '#employeeId'
+  edit_user_badge_num: '#badgeNumber'
+  edit_user_rule_assignment: '#deviceUserTableEdit > tbody > tr:nth-child(7) > td:nth-child(1) > a'
+  edit_user_rule_assignment_sdr: '#ruleAssignmentTable > tbody > tr:nth-child(16) > td:nth-child(1) > input[type=checkbox]'
+  edit_user_rule_assignment_save: 'body > div:nth-child(21) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)'
+
+  edit_user_group_membership: '#deviceUserTableEdit > tbody > tr:nth-child(8) > td:nth-child(1) > a'
+  edit_user_group_membership_save_button: 'body > div:nth-child(22) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)'
+  edit_user_group_membership_perm_cc: '#editMembershipCheck2'
+  edit_user_group_membership_perm_mh: '#editMembershipCheck4'
+  edit_user_group_membership_perm_sort: '#editMembershipCheck5'
+  edit_user_group_membership_perm_pick: '#editMembershipCheck6'
+
+  edit_user_save_button: '#updateUser'
