@@ -28,6 +28,7 @@ REQUESTER_ID = os.getenv("REQUESTER_ID")
 RESPONDER_ID = os.getenv("RESPONDER_ID")
 GROUP_ID = os.getenv("GROUP_ID")
 fresh_service_api = FreshServiceAPI(api_url = API_URL, api_key = API_KEY)
+APEX_USERS_URL = os.getenv("APEX_USERS_URL")
 
 
 # Initialize counters
@@ -81,12 +82,12 @@ def open_apex():
     write(os.getenv("APEX_USERNAME"), into="Username")
     highlight("Password")
     write(os.getenv("APEX_PASSWORD"), into=S(r"#user\.password"))
-    
+
 
     click(Button("Sign In »"))  # noqa: F405
     if Text("Invalid Login/Password!").exists():
         raise LoginError("Invalid username or password. Please try again.")
-    
+
 
     wait_until(Link("Profile Manager").exists)
 
@@ -110,6 +111,7 @@ def process_users():
     global first_name, last_name, employee_id, badge_num, department
 
     print("Adding users to the system.")
+    sdr_users = []
     rows_to_move = []
 
     for index, row in apex_users.iterrows():
@@ -118,6 +120,18 @@ def process_users():
         employee_id = row["Badge Number"]
         badge_num = int(row["Badge Number"])
         department = row["Department"]
+
+        """
+        Splitting logic for SDR permissions.
+        """
+        if department == "SDR":
+            try:
+                process_sdr_users(first_name, last_name, employee_id, badge_num, department)
+                rows_to_move.append(row)
+                logging.info(f"SDR badge # {badge_num} successfully processed and queued for archive.")
+            except Exception as e:
+                logging.error(f"Failed to process SDR badge # {badge_num}: {e}")
+            continue
 
         try:
             add_user(first_name, last_name, employee_id, badge_num, department)
@@ -167,6 +181,15 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
         last_name_element = S("#tr0 > td:nth-child(1) > a:nth-child(1)")
         highlight(last_name_element)
         click(last_name_element)
+
+        # Badge may have belonged to an SDR user -- strip the rule
+        # before assigning normal group permissions
+        if remove_sdr_rule_if_present():
+            logging.info(f"Badge # {badge_num} had the SDR rule -- removed.")
+
+        # remove_sdr_rule_if_present() saves and closes the user,
+        # so re-open it before editing the fields
+        click(S("#tr0 > td:nth-child(1) > a:nth-child(1)"))
 
         first_name_field = TextField(to_right_of=Text("First Name *:"))
         highlight(first_name_field)
@@ -388,6 +411,188 @@ def group_selection(group):
     except Exception as e:
         print(e)
 
+def search_badge(badge_num):
+    global users_added
+    # Go to the user page
+    go_to(APEX_USERS_URL)
+    time.sleep(1)
+    highlight(TextField(to_right_of=Text("Find users : by name, or login ID, or employee ID, or Badge #")))
+    click(TextField(to_right_of=Text("Find users : by name, or login ID, or employee ID, or Badge #")))
+    #click(S("searchUsersText"))
+    write("", into=TextField(to_right_of=Text("Find users : by name, or login ID, or employee ID, or Badge #")))
+    write(f"{badge_num}")
+
+    highlight(Button("Search"))
+    click(Button("Search"))
+
+    user_element = S("//*[@id='tr0']")
+    time.sleep(1)
+
+    if user_element.exists():
+        print(f"{badge_num} already exists. Changing the existing info.")
+        last_name_element = S("#tr0 > td:nth-child(1) > a:nth-child(1)")
+        highlight(last_name_element)
+        click(last_name_element)
+
+        first_name_field = TextField(to_right_of=Text("First Name *:"))
+        highlight(first_name_field)
+        click(first_name_field)
+        write("", into=first_name_field)  # Clears the field
+        write(first_name, into=first_name_field)  # Clears the field
+
+        last_name_field = TextField(to_right_of=Text("Last Name *:"))
+        highlight(last_name_field)  # noqa: F405
+        click(last_name_field)
+        write("", into=last_name_field)  # Clears the field
+        write(last_name, into=last_name_field)
+
+        emp_id_field = TextField(to_right_of=Text("Employee ID *:"))
+        highlight(emp_id_field)
+        write("", into=emp_id_field)
+        write(employee_id, into=emp_id_field)
+
+        badge_number_field = TextField(to_right_of=Text("Badge #:"))
+        highlight(badge_number_field)
+        write("", into=badge_number_field)
+        write(format_badge_number(badge_num))
+
+        dept = Link("User Group Membership")
+        click(dept)
+        edit_all_checkboxes()
+        click(Button("Save"))
+        # Save the user page and then edit the user again
+        click(Button("Save"))
+        time.sleep(1)
+        #Go Back to the user and click on "Rule Assignment"
+        click(S("#tr0 > td:nth-child(1) > a:nth-child(1)"))
+        click(Link("Rule Assignment"))
+        wait_until(S("#ruleAssignmentTable").exists)
+        # Guard the click -- the checkbox is a toggle, so a blind click
+        # would REMOVE the rule from a user who already has it
+        rule_checkbox = S("#ruleAssignmentTable > tbody:nth-child(1) > tr:nth-child(16) > td:nth-child(1) > input:nth-child(1)")
+        if not rule_checkbox.web_element.is_selected():
+            click(rule_checkbox)
+            time.sleep(1)
+            click(S("div.ui-dialog:nth-child(22) > div:nth-child(3) > div:nth-child(1) > button:nth-child(2)"))
+        else:
+            print("SDR rule already assigned.")
+        click(S("#updateUser"))
+
+    # Need to add edit logic
+    else:
+        try:
+            print(f"{badge_num} doesn't exist -- adding SDR user.")
+            logging.info(f"Badge # {badge_num} doesn't exist -- adding SDR user.")
+            click(Link("Add a User"))
+
+            first_name_field = TextField(to_right_of=Text("First Name *:"))
+            click(first_name_field)
+            write("", into=first_name_field)
+            write(first_name)
+
+            last_name_field = TextField(to_right_of=Text("Last Name *:"))
+            click(last_name_field)
+            write("", into=last_name_field)
+            write(last_name)
+
+            emp_id_field = TextField(to_right_of=Text("Employee ID *:"))
+            write("", into=emp_id_field)
+            write(employee_id)
+
+            badge_number_field = TextField(to_right_of=Text("Badge #:"))
+            write("", into=badge_number_field)
+            write(format_badge_number(badge_num))
+
+            # SDR users get a rule assignment instead of a group,
+            # so create the user with no group memberships
+            click(Link("User Group Membership"))
+            uncheck_all_checkboxes()
+
+            click(Button("Add"))
+            click(Button("Submit"))
+            wait_until(Button("Ok").exists)
+            click(Button("Ok"))
+
+            users_added += 1
+            logging.info(f"Badge # {badge_num} added.")
+
+            # Re-open the new user and apply the SDR rule assignment
+            go_to(APEX_USERS_URL)
+            time.sleep(1)
+            search_field = TextField(to_right_of=Text("Find users : by name, or login ID, or employee ID, or Badge #"))
+            highlight(search_field)
+            click(search_field)
+            write("", into=search_field)
+            write(f"{badge_num}")
+            highlight(Button("Search"))
+            click(Button("Search"))
+            time.sleep(1)
+
+            click(S("#tr0 > td:nth-child(1) > a:nth-child(1)"))
+            click(Link("Rule Assignment"))
+            wait_until(S("#ruleAssignmentTable").exists)
+            # Guarded for retries -- a brand-new user won't have the rule,
+            # but a re-run after a partial failure might
+            rule_checkbox = S("#ruleAssignmentTable > tbody:nth-child(1) > tr:nth-child(16) > td:nth-child(1) > input:nth-child(1)")
+            if not rule_checkbox.web_element.is_selected():
+                click(rule_checkbox)
+                time.sleep(1)
+                click(S("div.ui-dialog:nth-child(22) > div:nth-child(3) > div:nth-child(1) > button:nth-child(2)"))
+            click(S("#updateUser"))
+
+            if LogTickets:
+                response = fresh_service_api.create_ticket(
+                    subject = f"{first_name} {last_name} needs Apex access",
+                    description = f"needs access to {department} guns.",
+                    category = "Apex",
+                    priority = 2,
+                    status = 4,
+
+                    type = "Service Request",
+                    requester_id = int(REQUESTER_ID),
+                    responder_id = int(RESPONDER_ID),
+                    group_id = int(GROUP_ID),
+                )
+                resolution_notes = "User added with the requested permissions."
+
+                if response and "ticket" in response and resolution_notes:
+                    ticket_id = response["ticket"]["id"]
+                    fresh_service_api.update_ticket_resolution(ticket_id,
+                                                               resolution_notes)
+
+        except Exception as e:
+            print(e)
+            logging.error(f"Failed to add SDR user {badge_num}: {e}")
+            raise
+
+def remove_sdr_rule_if_present():
+    """Removes the SDR rule assignment from the currently open user, if present.
+    Saves and closes the user edit either way, so the caller must re-open
+    the user before making further edits. Returns True if a rule was removed."""
+    click(Link("Rule Assignment"))
+    wait_until(S("#ruleAssignmentTable").exists)
+    rule_checkbox = S("#ruleAssignmentTable > tbody:nth-child(1) > tr:nth-child(16) > td:nth-child(1) > input:nth-child(1)")
+    removed = False
+    if rule_checkbox.web_element.is_selected():
+        print("User has the SDR rule -- removing it.")
+        highlight(rule_checkbox)
+        click(rule_checkbox)
+        time.sleep(1)
+        # Unchecking may pop the same confirmation dialog as checking does
+        dialog_button = S("div.ui-dialog:nth-child(22) > div:nth-child(3) > div:nth-child(1) > button:nth-child(2)")
+        if dialog_button.exists():
+            click(dialog_button)
+        removed = True
+    else:
+        print("No SDR rule on this user.")
+    click(S("#updateUser"))
+    time.sleep(1)
+    return removed
+
+# Process SDR Users Logic
+def process_sdr_users(first_name, last_name, employee_id, badge_num, department):
+    print(f"Processing SDR User: {badge_num}")
+    search_badge(badge_num)
 
 open_apex()
 print(f"{users_added} users added.")
