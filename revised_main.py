@@ -71,27 +71,16 @@ archive_df = pd.read_excel(excel_file, sheet_name="Archive")
 # ==== END Excel Realted Info ====
 
 def format_badge_number(badge_number):
-    # Convert the badge number to a string
     badge_str = str(badge_number)
     
-    # Check the legnth of the badge number
     if len(badge_str) == 4:
         print("Appending a '0' to the badge number.")
         return "0" + badge_str
-    # If the badge is already 5 digits long, return as is
     elif len(badge_str) == 5:
         print("No badge formatting needed.")
         return badge_str
-
-    elif len(badge_str) > 5:
-        print("Badge number is too long! Please double check entries in the file.")
-        #TODO add logic to skip over the user instead of stopping the whole script
-        sys.exit()
-    
     else:
-        print("Badge number must be 4 or 5 digits long.")
-        logging.error("Badge number must be 4 or 5 digits long.")
-        return None
+        raise ValueError(f"Unexpected badge number length {len(badge_str)}: '{badge_str}'")
 
 def open_apex():
     """ Opens the Apex Website """
@@ -187,23 +176,23 @@ def search_users():
         badge_num = int(row["Badge Number"])
         department = row["Department"]
 
-    try:
-        print("Writing the badge number into the search box.")
-        write(badge_num, into=S(web_elements["user_search"]["search_box"]))
-        press(ENTER)
-
-        # See if the badge number is already in the system
-        if S(web_elements["user_search"]["existing_user"]).exists():
-            print(f"{badge_num} - already exists... editing the user.")
-            #TODO add an edit user function
-
-        else:
-            #TODO add an add user function
-            print(f"Adding user: {first_name} {last_name} - {badge_num}")
-            add_user(first_name, last_name, employee_id, badge_num, department)
+        try:
+            print("Writing the badge number into the search box.")
+            write(badge_num, into=S(web_elements["user_search"]["search_box"]))
+            press(ENTER)
     
-    except Exception as e:
-        print(e)
+            # See if the badge number is already in the system
+            if S(web_elements["user_search"]["existing_user"]).exists():
+                print(f"{badge_num} - already exists... editing the user.")
+                #TODO add an edit user function
+    
+            else:
+                #TODO add an add user function
+                print(f"Adding user: {first_name} {last_name} - {badge_num}")
+                add_user(first_name, last_name, employee_id, badge_num, department)
+        
+        except Exception as e:
+            print(e)
         
 
 
