@@ -10,7 +10,7 @@ to_user_profiles:
 user_search:
   search_box: '#searchUsersText'
   search_button: '#searchAddUser2 > button'
-  existing_user: '#tr0 > td:nth-child(1)'
+  existing_user: '#tr0 > td:nth-child(1) > a:nth-child(1)'
   add_user_button: '#addUserLink'
 
 add_user_page:
