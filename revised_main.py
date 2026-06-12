@@ -132,7 +132,6 @@ def edit_all_checkboxes():
     for checkbox in checkboxes:
         checkbox_element = S(checkbox).web_element
         if checkbox_element.is_selected():
-            highlight(S(checkbox))
             click(S(checkbox))
         else:
             print("Checkbox is already unchecked.")
@@ -248,15 +247,24 @@ def open_profile_manager():
         print(e)
 
 
-def add_remove_sdr_permissons(first_name, last_name, employee_id, badge_num, department):
+def edit_add_sdr_permissons():
     """ Removes (NOT EDIT) SDR permissions if the user doesn't need them """
     try:
         #TODO click on the user group membership, uncheck the checkboxes, hit save, save again
         print("User needs SDR permission - removing other permissions.")
         click(S(web_elements["edit_user_page"]["edit_user_group_membership"]))
+        # Unchecking all checkboxes here
+        edit_all_checkboxes()
+        # Click the Save button
+        click(S(web_elements["edit_user_page"]["edit_user_group_membership_save_button"]))
+        time.sleep(0.5)
+
+        # Click the save button on the profile
+        click(S(web_elements["edit_user_page"]["edit_user_save_button"]))
         
         
         #TODO - edit the user again and add the SDR permission
+
 
     except Exception as e:
         return e
@@ -303,7 +311,6 @@ def search_users():
                 edit_user(first_name, last_name, employee_id, badge_num, department)
 
             else:
-                #TODO add an add user function
                 print(f"Adding user: {first_name} {last_name} - {badge_num}")
                 add_user(first_name, last_name, employee_id, badge_num, department)
 
@@ -376,7 +383,9 @@ def edit_user(first_name, last_name, employee_id, badge_num, department):
     Need to determine if the user being edited needs SDR permissions or not.
     """
 
-    if department == "SDR" and S(web_elements["edit_user_page"]["edit_user_potential_sdr"]) != SDR_PERM:
+    if department == "SDR" and S("#viewRuleAssignment").web_element.text != SDR_PERM:
+        print(web_elements)
+        edit_remove_sdr_permissons()
         # TODO - need logic to remove current permission, and then add the SDR permission.
 
 
