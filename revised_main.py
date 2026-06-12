@@ -70,6 +70,8 @@ archive_df = pd.read_excel(excel_file, sheet_name="Archive")
 
 # ==== END Excel Realted Info ====
 
+# ==== HELPER FUNCTIONS ==== #
+
 def format_badge_number(badge_number):
     badge_str = str(badge_number)
     
@@ -81,6 +83,90 @@ def format_badge_number(badge_number):
         return badge_str
     else:
         raise ValueError(f"Unexpected badge number length {len(badge_str)}: '{badge_str}'")
+
+def uncheck_all_checkboxes():
+    """Unchecks all the cheboxes when adding a new user"""
+    wait_until(Text("User Group Membership").exists)
+    print("Unchecking all checkboxes.")
+    checkboxes = [
+        "input[id='membershipCheck0']",
+        "input[id='membershipCheck1']",
+        "input[id='membershipCheck2']",
+        "input[id='membershipCheck3']",
+        "input[id='membershipCheck4']",
+        "input[id='membershipCheck5']",
+        "input[id='membershipCheck6']",
+        "input[id='membershipCheck7']",
+        "input[id='membershipCheck8']",
+        "input[id='membershipCheck9']",
+        "input[id='membershipCheck10']",
+        "input[id='membershipCheck11']",
+    ]
+
+    for checkbox in checkboxes:
+        checkbox_element = S(checkbox).web_element
+        if checkbox_element.is_selected():
+            highlight(S(checkbox))
+            click(S(checkbox))
+        else:
+            print("Checkbox is already unchecked.")
+
+def group_assignment(department):
+    print("Assigning the group.")
+    if department == "Cycle Count":
+        return group_selection(2)
+    elif department == "General":
+        return group_selection(3)
+    elif department == "Material Handler":
+        return group_selection(4)
+    elif department == "Sort":
+        return group_selection(5)
+    elif department == "Voice Pick":
+        return group_selection(6)
+
+
+def group_selection(group):
+    try:
+        wait_until(Text("User Group Membership").exists)
+        checkbox = f"input[id='membershipCheck{group}']"
+        #checkbox_element = S(checkbox).web_element
+        print("Checkbox is already selected.")
+        click(S(checkbox))
+        click(Button("Add"))
+        click(Button("Submit"))
+        wait_until(Button("Ok").exists)
+        click(Button("Ok"))
+    except Exception as e:
+        print(e)
+
+def edit_group_selection(group):
+    try:
+        wait_until(Text("User Group Membership").exists)
+        print("Edit window is open.")
+        checkbox = f"input[id='editMembershipCheck{group}']"
+        #checkbox_element = S(checkbox).web_element
+        highlight(S(checkbox))
+        click(S(checkbox))
+        click(Button("Save"))
+        click(Button("Save"))
+    except  GroupAssignmentException as e:
+        print(e)
+
+def edit_group_assignment(group):
+    """HTML IDs are different when editing a user
+    vs adding a user."""
+    print("Editing the group assignment.")
+    time.sleep(1)
+    if department == "Cycle Count":
+        return edit_group_selection(2)
+    elif department == "General":
+        return edit_group_selection(3)
+    elif department == "Material Handler":
+        return edit_group_selection(4)
+    elif department == "Sort":
+        return edit_group_selection(5)
+    elif department == "Voice Pick":
+        return edit_group_selection(6)
 
 def open_apex():
     """ Opens the Apex Website """
@@ -238,7 +324,7 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
         else:
             click(S(web_elements)["add_user_page"]["add_user_group_membership"])
             #TODO call function to determine the permission needed.
-            
+
 
 
     except Exception as e:
