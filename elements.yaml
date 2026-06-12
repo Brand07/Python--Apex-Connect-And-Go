@@ -5,12 +5,13 @@ login_page:
 
 to_user_profiles:
   profile_manager: '#logout_left > a:nth-child(1)'
-  manage_users: '#pageBody > div.drawers-wrapper > ul > li:nth-child(1) > ul > li:nth-child(1)'
+  manage_users: 'li.drawer:nth-child(1) > ul:nth-child(2) > li:nth-child(1) > a:nth-child(1)'
 
 user_search:
   search_box: '#searchUsersText'
   search_button: '#searchAddUser2 > button'
-  existing_user: '#tr0 > td:nth-child(1) > a'
+  existing_user: '#tr0 > td:nth-child(1)'
+  add_user_button: '#addUserLink'
 
 add_user_page:
   add_first_name_element: '#user\.first_name'
@@ -21,7 +22,8 @@ add_user_page:
   add_user_group_memebership: '#deviceUserTable > tbody > tr:nth-child(7) > td:nth-child(1) > a'
   add_user_save_button: '#apexTblDisplay > tbody > tr > td > button'
 
-  add_user_rule_assignment_sdr_perm: '#ruleAssignmentTable > tbody > tr:nth-child(16) > td:nth-child(1) > input[type=checkbox]'
+  add_user_rule_assignment_sdr_perm: '#ruleAssignmentTable > tbody:nth-child(1) > tr:nth-child(16) > td:nth-child(1) > input:nth-child(1)'
+  add_user_rule_assignment_sdr_perm_save: 'body > div:nth-child(21) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)'
   add_user_group_memberhsip_perm_cc: '#membershipCheck2'
   add_user_group_memebership_perm_mh: '#membershipCheck4'
   add_user_group_memebership_perm_sort: '#membershipCheck5'
@@ -44,3 +46,6 @@ edit_user_page:
   edit_user_group_membership_perm_pick: '#editMembershipCheck6'
 
   edit_user_save_button: '#updateUser'
+
+other_elements:
+  existing_sdr_perm: '#viewRuleAssignment'
