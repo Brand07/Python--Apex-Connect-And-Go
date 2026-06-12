@@ -262,9 +262,16 @@ def edit_add_sdr_permissons():
         # Click the save button on the profile
         click(S(web_elements["edit_user_page"]["edit_user_save_button"]))
         
-        
         #TODO - edit the user again and add the SDR permission
-
+        click(S(web_elements["user_search"]["existing_user"]))
+        # Click the 'Rule Assignment'
+        time.sleep(1)
+        click(Link("Rule Assignment:"))
+        # Check the last checkbox
+        click(S(web_elements["edit_user_page"]["edit_user_rule_assignment_sdr"]))
+        click(S(web_elements["edit_user_page"]["edit_user_rule_assignment_save"]))
+        # Save the user profile again
+        click(S(web_elements["edit_user_page"]["edit_user_save_button"]))
 
     except Exception as e:
         return e
@@ -385,8 +392,10 @@ def edit_user(first_name, last_name, employee_id, badge_num, department):
 
     if department == "SDR" and S("#viewRuleAssignment").web_element.text != SDR_PERM:
         print(web_elements)
-        edit_remove_sdr_permissons()
-        # TODO - need logic to remove current permission, and then add the SDR permission.
+        edit_add_sdr_permissons()
+    else:
+        # Add the correct permission
+        
 
 
 open_apex()
