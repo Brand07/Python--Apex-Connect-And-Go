@@ -111,6 +111,32 @@ def uncheck_all_checkboxes():
         else:
             print("Checkbox is already unchecked.")
 
+def edit_all_checkboxes():
+    wait_until(Text("User Group Membership").exists)
+    print("Unchecking all checkboxes.")
+    checkboxes = [
+        "input[id='editMembershipCheck0']",
+        "input[id='editMembershipCheck1']",
+        "input[id='editMembershipCheck2']",
+        "input[id='editMembershipCheck3']",
+        "input[id='editMembershipCheck4']",
+        "input[id='editMembershipCheck5']",
+        "input[id='editMembershipCheck6']",
+        "input[id='editMembershipCheck7']",
+        "input[id='editMembershipCheck8']",
+        "input[id='editMembershipCheck9']",
+        "input[id='editMembershipCheck10']",
+        "input[id='editMembershipCheck11']",
+    ]
+
+    for checkbox in checkboxes:
+        checkbox_element = S(checkbox).web_element
+        if checkbox_element.is_selected():
+            highlight(S(checkbox))
+            click(S(checkbox))
+        else:
+            print("Checkbox is already unchecked.")
+
 def group_assignment(department):
     print("Assigning the group.")
     if department == "Cycle Count":
@@ -132,6 +158,7 @@ def group_selection(group):
         #checkbox_element = S(checkbox).web_element
         print("Checkbox is already selected.")
         click(S(checkbox))
+        time.sleep(0.5)
         click(Button("Add"))
         click(Button("Submit"))
         wait_until(Button("Ok").exists)
@@ -167,6 +194,8 @@ def edit_group_assignment(group):
         return edit_group_selection(5)
     elif department == "Voice Pick":
         return edit_group_selection(6)
+
+# ==== END HELPER FUNCTIONS ==== #
 
 def open_apex():
     """ Opens the Apex Website """
@@ -222,11 +251,12 @@ def open_profile_manager():
 def add_remove_sdr_permissons(first_name, last_name, employee_id, badge_num, department):
     """ Removes (NOT EDIT) SDR permissions if the user doesn't need them """
     try:
-        if S(web_elements["other_elements"]["existing_sdr_perm"]) == SDR_PERM:
-            print("User has SDR permissions.")
-            #TODO add more logic to remove the permissions if necessary
-        else:
-            print("User does not have SDR permissions.")
+        #TODO click on the user group membership, uncheck the checkboxes, hit save, save again
+        print("User needs SDR permission - removing other permissions.")
+        click(S(web_elements["edit_user_page"]["edit_user_group_membership"]))
+        
+        
+        #TODO - edit the user again and add the SDR permission
 
     except Exception as e:
         return e
@@ -270,7 +300,7 @@ def search_users():
             # See if the badge number is already in the system
             if S(web_elements["user_search"]["existing_user"]).exists():
                 print(f"{badge_num} - already exists... editing the user.")
-                #TODO add an edit user function
+                edit_user(first_name, last_name, employee_id, badge_num, department)
 
             else:
                 #TODO add an add user function
@@ -318,18 +348,36 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
             click(S(web_elements["add_user_page"]["add_user_rule_assignment_sdr_perm"]))
             # Save the option
             click(S(web_elements["add_user_page"]["add_user_rule_assignment_sdr_perm_save"]))
-            #TODO save the user profile
+            print("Saving the SDR permissions.")
+            time.sleep(0.5)
+            click(S(web_elements["add_user_page"]["add_user_save_button"]))
             #TODO create and resolve ticket at this point
 
         else:
-            click(S(web_elements)["add_user_page"]["add_user_group_membership"])
-            #TODO call function to determine the permission needed.
+            print("Clicking on 'User Group Membership'")
+            click(Link('User Group Membership:'))
+            uncheck_all_checkboxes()
+            group_assignment(department)
+
 
 
 
     except Exception as e:
         return e
 
+def edit_user(first_name, last_name, employee_id, badge_num, department):
+    print(f"Editing user {first_name} {last_name} - {badge_num} with {department} permissions.")
+    time.sleep(0.5)
+    # Click on the existing user
+    click(S(web_elements["user_search"]["existing_user"]))
+    print("Clicked on user.")
+
+    """
+    Need to determine if the user being edited needs SDR permissions or not.
+    """
+
+    if department == "SDR" and S(web_elements["edit_user_page"]["edit_user_potential_sdr"]) != SDR_PERM:
+        # TODO - need logic to remove current permission, and then add the SDR permission.
 
 
 open_apex()
