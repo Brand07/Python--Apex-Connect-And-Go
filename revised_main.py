@@ -180,17 +180,17 @@ def search_users():
             print("Writing the badge number into the search box.")
             write(badge_num, into=S(web_elements["user_search"]["search_box"]))
             press(ENTER)
-    
+
             # See if the badge number is already in the system
             if S(web_elements["user_search"]["existing_user"]).exists():
                 print(f"{badge_num} - already exists... editing the user.")
                 #TODO add an edit user function
-    
+
             else:
                 #TODO add an add user function
                 print(f"Adding user: {first_name} {last_name} - {badge_num}")
                 add_user(first_name, last_name, employee_id, badge_num, department)
-        
+
         except Exception as e:
             print(e)
         
@@ -206,8 +206,10 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
         # Enter the last name
         write(last_name, into=S(web_elements["add_user_page"]["add_last_name_element"]))
         # Enter the formatted badge number into the employee ID and Badge Number field
-        write(format_badge_number(badge_num), into=web_elements["add_user_page"]["add_user_emp_id"])
-        write(format_badge_number(badge_num), into=web_elements["add_user_page"]["add_user_badge_num"])
+        write(format_badge_number(badge_num), into=S(web_elements["add_user_page"]["add_user_emp_id"]))
+        write(format_badge_number(badge_num), into=S(web_elements["add_user_page"]["add_user_badge_num"]))
+
+        
     
     except Exception as e:
         print(e)
@@ -230,10 +232,13 @@ def add_user(first_name, last_name, employee_id, badge_num, department):
             click(S(web_elements["add_user_page"]["add_user_rule_assignment_sdr_perm"]))
             # Save the option
             click(S(web_elements["add_user_page"]["add_user_rule_assignment_sdr_perm_save"]))
+            #TODO save the user profile
+            #TODO create and resolve ticket at this point
 
-
-        
-
+        else:
+            click(S(web_elements)["add_user_page"]["add_user_group_membership"])
+            #TODO call function to determine the permission needed.
+            
 
 
     except Exception as e:
