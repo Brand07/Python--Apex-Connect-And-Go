@@ -276,6 +276,25 @@ def edit_add_sdr_permissons():
     except Exception as e:
         return e
 
+def edit_remove_sdr_permission():
+    """
+    Removes the SDR permission when EDITING a user
+    """
+    click(S(web_elements["edit_user_page"]["edit_user_rule_assignment"]))
+    # Uncheck both checkboxes belonging to the permission
+
+    sdr_checkboxes = [
+        "#ruleAssignmentTable > tbody:nth-child(1) > tr:nth-child(16) > td:nth-child(1) > input:nth-child(1)",
+        "#ruleAssignmentTable > tbody:nth-child(1) > tr:nth-child(15) > td:nth-child(1) > input:nth-child(1)"
+    ]
+
+    for _ in sdr_checkboxes:
+        click(S(_))
+
+    # Click the save button
+    #click(S(web_elements["edit_user_page"]["edit_user_rule_assignment_save"]))
+    click(S("div.ui-dialog:nth-child(21) > div:nth-child(3) > div:nth-child(1) > button:nth-child(2)"))
+
 def add_add_sdr_permission(first_name, last_name, employee_id, badge_num, department):
     """Adds (Not EDIT) SDR permissions if the user doesn't need them"""
     try:
@@ -393,9 +412,25 @@ def edit_user(first_name, last_name, employee_id, badge_num, department):
     if department == "SDR" and S("#viewRuleAssignment").web_element.text != SDR_PERM:
         print(web_elements)
         edit_add_sdr_permissons()
+
+    elif department != "SDR" and S("#viewRuleAssignment").web_element.text == SDR_PERM:
+        print("Need to remove SDR permissions.")
+        edit_remove_sdr_permission()
+        
+
+
     else:
         # Add the correct permission
-        
+        # First Name
+        write(first_name, into=S(web_elements["edit_user_page"]["edit_first_name_element"]))
+        # Last Name
+        write(last_name, into=S(web_elements["edit_user_page"]["edit_user_last_name"]))
+        # Emp ID
+        write(badge_num, into=S(web_elements["edit_user_page"]["edit_user_emp_id"]))
+        # Badge Number
+        write(badge_num, into=S(web_elements["edit_user_page"]["edit_user_badge_num"]))
+
+
 
 
 open_apex()
